@@ -19,7 +19,7 @@ public class Main {
     void read(String file) throws IOException {
         FileInputStream stream = new FileInputStream(file);
         Scanner scanner = new Scanner(stream);
-        
+
 
         scanner.close();
     }
