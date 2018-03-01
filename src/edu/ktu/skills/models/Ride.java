@@ -1,5 +1,7 @@
 package edu.ktu.skills.models;
 
+import java.util.Objects;
+
 public class Ride {
 
     private int id;
@@ -9,6 +11,8 @@ public class Ride {
 
     private int startTime;
     private int endTime;
+
+    private int evaluatedScore = 0;
 
     private Vehicle assignedVehicle = null;
 
@@ -26,6 +30,14 @@ public class Ride {
 
     public Location getStart() {
         return start;
+    }
+
+    public void setEvaluatedScore(int evaluatedScore) {
+        this.evaluatedScore = evaluatedScore;
+    }
+
+    public int getEvaluatedScore() {
+        return evaluatedScore;
     }
 
     public void setStart(Location start) {
@@ -80,5 +92,19 @@ public class Ride {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ride ride = (Ride) o;
+        return id == ride.id;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id);
     }
 }

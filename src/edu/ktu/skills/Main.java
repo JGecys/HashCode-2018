@@ -9,9 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class Main implements Runnable{
+public class Main implements Runnable {
 
-    public static final String[] INPUT_FILES = new String[]{
+    private static final String[] INPUT_FILES = new String[]{
             "a_example.in",
             "b_should_be_easy.in",
             "c_no_hurry.in",
@@ -19,16 +19,16 @@ public class Main implements Runnable{
             "e_high_bonus.in"
     };
 
-    int rows;
-    int columns;
+    private int rows;
+    private int columns;
 
-    int onTimeBonus;
-    int stepsCount;
+    private int onTimeBonus;
+    private int stepsCount;
 
-    List<Vehicle> vehicles;
-    List<Ride> rides;
+    private List<Vehicle> vehicles;
+    private List<Ride> rides;
 
-    String inputFile;
+    private String inputFile;
 
     public Main(String inputFile) {
         this.inputFile = inputFile;
@@ -39,15 +39,15 @@ public class Main implements Runnable{
         try {
             System.out.printf("-- Reading data file %s --\n", inputFile);
             read(inputFile);
-            System.out.printf("-- Read data success --\n", inputFile);
+            System.out.printf("-- Read data success %s --\n", inputFile);
 
-            System.out.printf("-- Running program --\n", inputFile);
+            System.out.printf("-- Running program %s --\n", inputFile);
             calculate();
 
-            System.out.printf("-- Writing output to file %s --\n", inputFile + ".out");
+            System.out.printf("-- Writing output to file %s --\n", inputFile);
             write(inputFile + ".out");
-            System.out.printf("-- Program end --\n", inputFile);
-        } catch (IOException e){
+            System.out.printf("-- Program end %s --\n", inputFile);
+        } catch (IOException e) {
             System.err.println(e);
         }
     }
@@ -57,6 +57,16 @@ public class Main implements Runnable{
         for (Vehicle vehicle : vehicles) {
             iteration(vehicle, 0);
         }
+
+        for (int time = 0; time < stepsCount; time++) {
+            for (Vehicle vehicle : vehicles) {
+                if (vehicle.getCurrentItteration() > time) {
+                    continue;
+                }
+                iteration(vehicle, time);
+            }
+        }
+
 
     }
 
@@ -72,12 +82,9 @@ public class Main implements Runnable{
             if (currentTime + ride.getDistance() + vehicle.getLocation().distance(ride.getStart()) > ride.getEndTime()) {
                 continue;
             }
-            if (currentTime + ride.getDistance() + vehicle.getLocation().distance(ride.getStart()) > stepsCount) {
-                continue;
-            }
             availableRides.add(ride);
         }
-        if(availableRides.size() == 0){
+        if (availableRides.size() == 0) {
             return;
         }
         availableRides.sort(new Comparator<Ride>() {
@@ -88,12 +95,16 @@ public class Main implements Runnable{
         });
         Ride ride = availableRides.get(0);
         int deltaTime = vehicle.getLocation().distance(ride.getStart()) + ride.getDistance();
-        if(currentTime + vehicle.getLocation().distance(ride.getStart()) < ride.getStartTime()){
+        if (currentTime + vehicle.getLocation().distance(ride.getStart()) < ride.getStartTime()) {
             deltaTime += ride.getStartTime() - (currentTime + vehicle.getLocation().distance(ride.getStart()));
+        }
+        if (ride.getAssignedVehicle() != null) {
+            ride.getAssignedVehicle().removeRide(ride);
         }
         vehicle.assignRide(ride);
         vehicle.setLocation(ride.getEnd());
-        iteration(vehicle, currentTime + deltaTime);
+        vehicle.setCurrentItteration(currentTime + deltaTime);
+//        iteration(vehicle, currentTime + deltaTime);
 
     }
 
@@ -104,7 +115,8 @@ public class Main implements Runnable{
                 currentTime + vehicle.getLocation().distance(ride.getStart()));
         early = ride.getEndTime() - currentTime + ride.getDistance() + vehicle.getLocation().distance(ride.getStart());
         int distance = ride.getStart().distance(vehicle.getLocation());
-        return delay + early + distance;
+        int score = distance + delay + early - (delay == 0 ? onTimeBonus : 0);
+        return score;
     }
 
     void read(String file) throws IOException {
