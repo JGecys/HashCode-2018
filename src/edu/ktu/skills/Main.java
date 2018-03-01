@@ -54,10 +54,6 @@ public class Main implements Runnable {
 
     void calculate() {
 
-        for (Vehicle vehicle : vehicles) {
-            iteration(vehicle, 0);
-        }
-
         for (int time = 0; time < stepsCount; time++) {
             for (Vehicle vehicle : vehicles) {
                 if (vehicle.getCurrentItteration() > time) {
@@ -104,19 +100,15 @@ public class Main implements Runnable {
         vehicle.assignRide(ride);
         vehicle.setLocation(ride.getEnd());
         vehicle.setCurrentItteration(currentTime + deltaTime);
-//        iteration(vehicle, currentTime + deltaTime);
-
     }
 
     private int evaluateRideScore(Vehicle vehicle, int currentTime, Ride ride) {
         int delay;
-        int early;
         delay = Math.abs(ride.getStartTime() -
                 currentTime + vehicle.getLocation().distance(ride.getStart()));
-        early = ride.getEndTime() - currentTime + ride.getDistance() + vehicle.getLocation().distance(ride.getStart());
         int distance = ride.getStart().distance(vehicle.getLocation());
-        int score = distance + delay + early - (delay == 0 ? onTimeBonus : 0);
-        return score;
+
+        return distance - ride.getDistance() + delay - (delay == 0 ? onTimeBonus : 0);
     }
 
     void read(String file) throws IOException {
